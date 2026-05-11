@@ -296,7 +296,7 @@ function render(){
         ${photoEl(p,48)}
         <div class="card-info">
           <div class="card-name">${p.name}</div>
-          ${d.rubro?`<div class="card-rubro">${d.rubro}</div>`:(d.cargo?`<div class="card-rubro">${d.cargo}</div>`:'')}<a class="card-li" href="${p.url}" target="_blank" onclick="event.stopPropagation()">🔗 LinkedIn</a>
+          ${d.cargo?`<div class="card-rubro" style="color:#555;font-weight:500">${d.cargo}</div>`:''}${d.rubro?`<div class="card-rubro">${d.rubro}</div>`:''}<a class="card-li" href="${p.url}" target="_blank" onclick="event.stopPropagation()">🔗 LinkedIn</a>
         </div>
       </div>
       ${hasFill?`<hr class="divider">
