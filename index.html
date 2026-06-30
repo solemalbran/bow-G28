@@ -74,6 +74,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .pending-msg{font-size:13px!important}
   .badge-count{font-size:13px!important}
 }
+
+.tabs-bar{background:#fff;border-bottom:1px solid #e8e4de;padding:0 1.5rem}
+.tabs-inner{max-width:1100px;margin:0 auto;display:flex;gap:0}
+.tab{padding:10px 20px;font-size:14px;font-weight:500;border:none;background:none;cursor:pointer;color:#888;border-bottom:2px solid transparent;transition:all 0.15s}
+.tab.active{color:#2d2d5e;border-bottom-color:#2d2d5e}
+.tab:hover{color:#2d2d5e}
+#tab-datos{display:none}
+.datos-form{background:#fff;border:1px solid #e8e4de;border-radius:14px;padding:1.25rem;margin-bottom:1.5rem;display:flex;flex-direction:column;gap:12px}
+.datos-form h3{font-size:15px;font-weight:600;color:#1a1a1a}
+.datos-preview{display:flex;align-items:center;gap:10px;min-height:52px}
+.datos-preview-info{font-size:13px;color:#888}
+.datos-grid{display:flex;flex-direction:column;gap:10px}
+.dato-card{background:#fff;border:1px solid #e8e4de;border-radius:12px;padding:1rem;display:flex;flex-direction:column;gap:8px}
+.dato-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.dato-author{display:flex;align-items:center;gap:8px}
+.dato-author img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #f0ede8}
+.dato-author-initial{width:36px;height:36px;border-radius:50%;background:#eeedf8;color:#2d2d5e;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px}
+.dato-name{font-size:13px;font-weight:600;color:#1a1a1a}
+.dato-date{font-size:11px;color:#aaa;margin-top:1px}
+.dato-edit-btn{font-size:12px;padding:4px 10px;border:1px solid #e8e4de;border-radius:6px;background:#fff;cursor:pointer;color:#555}
+.dato-edit-btn:hover{border-color:#2d2d5e;color:#2d2d5e}
+.dato-body{font-size:13px;color:#333;line-height:1.5;white-space:pre-wrap}
+.btn-publish{padding:9px 20px;font-size:13px;border:none;border-radius:8px;background:#2d2d5e;color:#fff;cursor:pointer;font-weight:500;align-self:flex-start}
+.btn-publish:hover{background:#3d3d7e}
+.empty-datos{text-align:center;padding:3rem;color:#aaa;font-size:14px}
+.edit-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem}
+.edit-modal{background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:420px;display:flex;flex-direction:column;gap:12px}
+.edit-modal h3{font-size:15px;font-weight:600}
+@media(max-width:600px){.tab{font-size:13px;padding:8px 14px}}
 </style>
 </head>
 <body>
@@ -96,7 +125,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<div class="tabs-bar">
+  <div class="tabs-inner">
+    <button class="tab active" onclick="switchTab('directorio')">👥 Directorio</button>
+    <button class="tab" onclick="switchTab('datos')">📌 Datos</button>
+  </div>
+</div>
+
 <div class="main">
+<div id="tab-directorio">
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
     <input type="text" id="search" placeholder="Buscar por nombre, rubro o interés..." oninput="render()">
@@ -104,6 +141,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="loading" id="loading">Cargando directorio...</div>
   <div class="grid" id="grid" style="display:none"></div>
   <div class="empty-msg" id="empty" style="display:none">No se encontraron resultados.</div>
+</div>
+
+</div><!-- end tab-directorio -->
+
+<div id="tab-datos" style="display:none">
+  <div class="datos-form">
+    <h3>Publicar en Datos</h3>
+    <div class="datos-preview" id="datos-preview">
+      <div class="datos-preview-info">Escribe tu nombre para identificarte</div>
+    </div>
+    <input type="text" id="datos-nombre" placeholder="Tu nombre (ej: Soledad Malbrán)" oninput="buscarAutora()" style="padding:9px 12px;border:1px solid #e8e4de;border-radius:8px;font-size:13px;outline:none">
+    <textarea id="datos-mensaje" placeholder="Escribe aquí tu dato, descuento o información para la red..." style="padding:9px 12px;border:1px solid #e8e4de;border-radius:8px;font-size:13px;outline:none;resize:vertical;min-height:80px;font-family:inherit"></textarea>
+    <button class="btn-publish" onclick="publicarDato()">Publicar</button>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search-datos" placeholder="Buscar en Datos..." oninput="renderDatos()">
+  </div>
+  <div class="datos-grid" id="datos-grid"></div>
+  <div class="empty-datos" id="empty-datos" style="display:none">Aún no hay datos publicados. ¡Sé la primera! 🙌</div>
+</div>
+
+<div class="edit-overlay" id="edit-overlay" style="display:none" onclick="if(event.target===this)cerrarEditar()">
+  <div class="edit-modal">
+    <h3>Editar publicación</h3>
+    <p style="font-size:13px;color:#666">Confirma tu nombre para editar</p>
+    <input type="text" id="edit-nombre-confirm" placeholder="Tu nombre exacto..." style="padding:9px 12px;border:1px solid #e8e4de;border-radius:8px;font-size:13px;outline:none">
+    <textarea id="edit-mensaje" style="padding:9px 12px;border:1px solid #e8e4de;border-radius:8px;font-size:13px;outline:none;resize:vertical;min-height:80px;font-family:inherit"></textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button style="padding:8px 16px;font-size:13px;border:1px solid #e8e4de;border-radius:8px;background:#fff;cursor:pointer" onclick="cerrarEditar()">Cancelar</button>
+      <button style="padding:8px 18px;font-size:13px;border:none;border-radius:8px;background:#2d2d5e;color:#fff;cursor:pointer;font-weight:500" onclick="guardarEdicion()">Guardar</button>
+    </div>
+  </div>
 </div>
 
 <div class="overlay" id="overlay" style="display:none" onclick="if(event.target===this)closeModal()">
@@ -362,6 +432,141 @@ async function saveModal(){
     }
   }catch(e){showToast("Error de conexión.");console.error(e);}
   btn.classList.remove("saving");btn.textContent="Guardar";
+}
+
+
+// ---- TABS ----
+function switchTab(tab) {
+  document.getElementById('tab-directorio').style.display = tab === 'directorio' ? 'block' : 'none';
+  document.getElementById('tab-datos').style.display = tab === 'datos' ? 'block' : 'none';
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  if(tab === 'datos') loadDatos();
+}
+
+// ---- DATOS ----
+let datosData = [];
+let editIdx = null;
+
+function timeAgo(iso) {
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = Math.floor((now - d) / 1000);
+  if(diff < 60) return 'hace un momento';
+  if(diff < 3600) return `hace ${Math.floor(diff/60)} min`;
+  if(diff < 86400) return `hace ${Math.floor(diff/3600)} h`;
+  if(diff < 604800) return `hace ${Math.floor(diff/86400)} días`;
+  return d.toLocaleDateString('es-CL');
+}
+
+function buscarAutora() {
+  const nombre = document.getElementById('datos-nombre').value.trim().toLowerCase();
+  const preview = document.getElementById('datos-preview');
+  const match = PEOPLE.find(p => p.name.toLowerCase().includes(nombre) && nombre.length > 2);
+  if(match) {
+    const foto = match.key && PHOTOS[match.key] 
+      ? `<img src="${PHOTOS[match.key]}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #f0ede8">`
+      : `<div class="dato-author-initial">${initials(match.name)}</div>`;
+    preview.innerHTML = `${foto}<div><div style="font-size:13px;font-weight:600;color:#1a1a1a">${match.name}</div><div style="font-size:11px;color:#1D9E75">✓ Identificada</div></div>`;
+  } else {
+    preview.innerHTML = `<div class="datos-preview-info">${nombre.length > 2 ? 'Nombre no encontrado en el directorio' : 'Escribe tu nombre para identificarte'}</div>`;
+  }
+}
+
+async function loadDatos() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/bow_datos?select=*&order=created_at.desc`, {
+      headers: {"apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`}
+    });
+    datosData = await res.json();
+    renderDatos();
+  } catch(e) { console.error(e); }
+}
+
+function renderDatos() {
+  const q = (document.getElementById('search-datos')?.value || '').toLowerCase();
+  const filtered = datosData
+    .map((d, i) => ({...d, _idx: i}))
+    .filter(d => !q || d.nombre.toLowerCase().includes(q) || d.mensaje.toLowerCase().includes(q));
+  const grid = document.getElementById('datos-grid');
+  const empty = document.getElementById('empty-datos');
+  if(!filtered.length) {
+    grid.innerHTML='';
+    empty.style.display='block';
+    empty.textContent = q ? 'No se encontraron resultados.' : 'Aún no hay datos publicados. ¡Sé la primera! 🙌';
+    return;
+  }
+  empty.style.display='none';
+  grid.innerHTML = filtered.map((d) => {
+    const i = d._idx;
+    const match = PEOPLE.find(p => p.name === d.nombre);
+    const foto = match && match.key && PHOTOS[match.key]
+      ? `<img src="${PHOTOS[match.key]}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #f0ede8">`
+      : `<div class="dato-author-initial">${(d.nombre||'?')[0].toUpperCase()}</div>`;
+    return `<div class="dato-card">
+      <div class="dato-header">
+        <div class="dato-author">
+          ${foto}
+          <div>
+            <div class="dato-name">${d.nombre}</div>
+            <div class="dato-date">${timeAgo(d.created_at)}</div>
+          </div>
+        </div>
+        <button class="dato-edit-btn" onclick="abrirEditar(${i})">✏️ Editar</button>
+      </div>
+      <div class="dato-body">${d.mensaje}</div>
+    </div>`;
+  }).join('');
+}
+
+async function publicarDato() {
+  const nombre = document.getElementById('datos-nombre').value.trim();
+  const mensaje = document.getElementById('datos-mensaje').value.trim();
+  if(!nombre || !mensaje) { showToast('Completa tu nombre y mensaje'); return; }
+  const match = PEOPLE.find(p => p.name.toLowerCase() === nombre.toLowerCase());
+  if(!match) { showToast('Nombre no encontrado en el directorio'); return; }
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/bow_datos`, {
+      method: 'POST',
+      headers: {"apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json"},
+      body: JSON.stringify({nombre: match.name, mensaje})
+    });
+    if(res.ok || res.status===201) {
+      document.getElementById('datos-nombre').value='';
+      document.getElementById('datos-mensaje').value='';
+      document.getElementById('datos-preview').innerHTML='<div class="datos-preview-info">Escribe tu nombre para identificarte</div>';
+      showToast('✓ Publicado!');
+      loadDatos();
+    }
+  } catch(e) { showToast('Error al publicar'); }
+}
+
+function abrirEditar(i) {
+  editIdx = i;
+  document.getElementById('edit-nombre-confirm').value='';
+  document.getElementById('edit-mensaje').value = datosData[i].mensaje;
+  document.getElementById('edit-overlay').style.display='flex';
+}
+
+function cerrarEditar() {
+  document.getElementById('edit-overlay').style.display='none';
+  editIdx = null;
+}
+
+async function guardarEdicion() {
+  const nombreConfirm = document.getElementById('edit-nombre-confirm').value.trim().toLowerCase();
+  const dato = datosData[editIdx];
+  if(nombreConfirm !== dato.nombre.toLowerCase()) { showToast('Nombre incorrecto'); return; }
+  const mensaje = document.getElementById('edit-mensaje').value.trim();
+  if(!mensaje) { showToast('El mensaje no puede estar vacío'); return; }
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/bow_datos?id=eq.${dato.id}`, {
+      method: 'PATCH',
+      headers: {"apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json"},
+      body: JSON.stringify({mensaje})
+    });
+    if(res.ok) { showToast('✓ Editado!'); cerrarEditar(); loadDatos(); }
+  } catch(e) { showToast('Error al editar'); }
 }
 
 loadData();
